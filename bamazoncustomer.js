@@ -58,7 +58,7 @@ var userInput = function(){
 						       if ((inStockQty>0) && (inStockQty < userQty)){
 						       		console.log("\nInsufficient Quantity - We only have ".bold.red + inStockQty.toString().bold.black + " of the item left in stock\n\n".bold.red);
 						       			}else if(inStockQty < 1){
-						       				console.log("This item is Out Of Stock\n\n".bold.red);
+						       				console.log("\nThis item is Out Of Stock\n\n".bold.red);
 			   								}else{
 			   									processOrder = true;
 			   								}
