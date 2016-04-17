@@ -2,7 +2,7 @@ var mysql = require('mysql');
 var prompt = require('prompt');
 var colors = require('colors');
 var pad = require('pad');
-
+var userItemId,userQty;
 
 var con = mysql.createConnection({
      host     : 'localhost', //for now, this will always be localhost
@@ -18,22 +18,106 @@ con.connect(function (err) {
        }
        //console.log('connected')
    });
-var getUserInput = function(){
-	console.log("Please place your order? <No Entry => Nobody>");
+
+var userInput = function(){
+	
+	console.log("\n\nPlease place your order? <No Entry => No Order>");
 	prompt.start();
 		
 	prompt.get(['ItemId','qty'],function(err,result){
 			if (err){throw err};
-			if (result.ItemId && result.qty){
-				var ItemId = result.ItemId;
-				var qty = result.qty;
-				console.log("user entered item # "+ItemId+" and qty: "+ qty);
+			if(result.ItemId){
+				userItemId = result.ItemId;
+				userQty = parseInt(result.qty);
+				if (!userQty){
+					console.log("\n\n0 quantity ordered. Thanks for visiting Bamazon!\n\n".bold.red);
+					process.exit();}	
+			
+				con.query("SELECT * FROM Product WHERE ItemID="+ userItemId, function(err,rows){
+
+						if (err) {
+						           throw err;
+						       }
+						       
+						       if (!rows[0]) {
+						           
+						           console.log("\n\nNo products found with that ID\n\n".bold.red);
+						           process.exit();            
+						           
+						       }
+						       var itemId = rows[0].ItemID;
+						       var prodName = rows[0].ProdName;
+						       var unitPrice = rows[0].Price;
+						       var inStockQty = parseInt(rows[0].StockQuantity);
+						       var totalLeftInStock = inStockQty - userQty;
+					      	   var totalCost = (userQty * unitPrice).toFixed(2); 
+						       // console.log("Unit price: "+unitPrice.toFixed(2));
+						       // console.log("Qty in Stock: "+inStockQty);
+						       // console.log("Total Left in stock: "+totalLeftInStock);
+						       var processOrder = false;
+						       if (inStockQty && inStockQty < userQty){
+						       		console.log("Insufficient Quantity - We only have ".bold.red + inStockQty.toString().bold.black + " of the item left in stock\n\n".bold.red);
+						       			}else if(inStockQty = 0){
+						       				console.log("This item is Out Of Stock\n\n".bold.red);
+			   								}else{
+			   									processOrder = true;
+			   								}
+								if (processOrder){
+									
+									process.stdout.write("\n\n"+pad(30,"Order Placed").bold.magenta);
+									process.stdout.write(("\n"+pad(30,"------------")).bold.magenta);
+									process.stdout.write(("\nItemID "+pad("Name",22)).bold.red);
+							 		process.stdout.write((pad("Price",8)+pad("# Ordered",10)).bold.red);
+									process.stdout.write(pad(30,"Total".bold.red));
+									process.stdout.write(("\n==========================================================").bold.green); 
+								
+									//con.query("UPDATE Product SET StockQuantity="+totalLeftInStock+"WHERE ItemID="+itemId);
+									con.query(
+									  'UPDATE Product SET StockQuantity = ? Where ItemId = ?',
+									  [totalLeftInStock, itemId],
+									  function (err, result) {
+									    if (err) throw err;
+
+									    // console.log('Changed ' + result.changedRows + ' rows');
+										    process.stdout.write("\n"+pad(pad(3,itemId),6));
+										 	process.stdout.write(" "+pad(prodName,20));
+										 	process.stdout.write(" "+pad(6,unitPrice.toFixed(2)));
+										 	process.stdout.write(" "+pad(10,userQty.toString()));
+										 	process.stdout.write(" "+pad(12,totalCost));
+
+										 	console.log("\n\n");
+
+										 	process.exit();
+
+
+
+
+
+									  }
+									);
+
+								}else{process.exit();}
 				
+
+
+
+
+				})//closes query for WHERE ItemID=
+			}else if(!result.item){
+				process.exit()
 			}
-				
-				
-	})
-}
+
+	})//closes prompt
+
+}//closes var userInput
+
+
+
+
+// var checkStockAgainstOrder = function(){
+// console.log('checkStockAgainstOrder');
+// }
+
 var displayProducts = function(callback){
 	con.query("SELECT * FROM Product", function(err,rows){
 
@@ -48,10 +132,10 @@ var displayProducts = function(callback){
 		       }
 			process.stdout.write("\n\n"+pad(30,"Current Inventory").bold.red);
 			process.stdout.write(("\n"+pad(30,"-----------------")).bold.red);
-			process.stdout.write(("\nProdID "+pad("Name",22)).bold.green);
+			process.stdout.write(("\nItemID "+pad("Name",22)).bold.green);
 	 		process.stdout.write((pad("Price",8)+pad("# Available",10)).bold.green);
 			process.stdout.write(("\n================================================").bold.red); 
-			for(i=0;i<rows.length-1;++i){
+			for(i=0;i<rows.length;++i){
 			 	
 			 	var itemId = rows[i].ItemID;
 			 	var prodName = rows[i].ProdName;
@@ -70,4 +154,10 @@ var displayProducts = function(callback){
 	})
 };
 
-displayProducts(getUserInput);
+displayProducts(userInput);
+
+
+
+
+
+
