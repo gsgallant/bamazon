@@ -1,5 +1,5 @@
 var mysql = require('mysql');
-var prompt = require('mysql');
+var prompt = require('prompt');
 var colors = require('colors');
 var pad = require('pad');
 
@@ -16,10 +16,25 @@ con.connect(function (err) {
        if (err) {
            console.log(err);
        }
-       //console.log('connected');
+       //console.log('connected')
    });
-
-var displayProducts = function(){
+var getUserInput = function(){
+	console.log("Please place your order? <No Entry => Nobody>");
+	prompt.start();
+		
+	prompt.get(['ItemId','qty'],function(err,result){
+			if (err){throw err};
+			if (result.ItemId && result.qty){
+				var ItemId = result.ItemId;
+				var qty = result.qty;
+				console.log("user entered item # "+ItemId+" and qty: "+ qty);
+				
+			}
+				
+				
+	})
+}
+var displayProducts = function(callback){
 	con.query("SELECT * FROM Product", function(err,rows){
 
 		if (err) {
@@ -50,9 +65,9 @@ var displayProducts = function(){
 			 	process.stdout.write(" "+pad(10,qty.toString()));
 			 }      
 			 console.log();
-
+			 callback();
 
 	})
 };
 
-displayProducts();
+displayProducts(getUserInput);
