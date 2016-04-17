@@ -30,7 +30,7 @@ var userInput = function(){
 				userItemId = result.ItemId;
 				userQty = parseInt(result.qty);
 				if (!userQty){
-					console.log("\n\n0 quantity ordered. Thanks for visiting Bamazon!\n\n".bold.red);
+					console.log("\n\nQuantity 0 ordered. Thanks for visiting Bamazon!\n\n".bold.red);
 					process.exit();}	
 			
 				con.query("SELECT * FROM Product WHERE ItemID="+ userItemId, function(err,rows){
@@ -55,9 +55,9 @@ var userInput = function(){
 						       // console.log("Qty in Stock: "+inStockQty);
 						       // console.log("Total Left in stock: "+totalLeftInStock);
 						       var processOrder = false;
-						       if (inStockQty && inStockQty < userQty){
-						       		console.log("Insufficient Quantity - We only have ".bold.red + inStockQty.toString().bold.black + " of the item left in stock\n\n".bold.red);
-						       			}else if(inStockQty = 0){
+						       if ((inStockQty>0) && (inStockQty < userQty)){
+						       		console.log("\nInsufficient Quantity - We only have ".bold.red + inStockQty.toString().bold.black + " of the item left in stock\n\n".bold.red);
+						       			}else if(inStockQty < 1){
 						       				console.log("This item is Out Of Stock\n\n".bold.red);
 			   								}else{
 			   									processOrder = true;
