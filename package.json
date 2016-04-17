@@ -1,0 +1,21 @@
+{
+  "name": "bamazon",
+  "version": "1.0.0",
+  "description": "HW12 Intro to mysql",
+  "main": "bamazoncustomer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "week-12-mysql"
+  },
+  "author": "Greg Gallant",
+  "license": "ISC",
+  "dependencies": {
+    "colors": "^1.1.2",
+    "mysql": "^2.10.2",
+    "pad": "^1.0.0",
+    "prompt": "^1.0.0"
+  }
+}
