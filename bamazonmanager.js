@@ -26,7 +26,7 @@ function exitToTerminal(){
 	process.exit();
 };
 
-var startApp = function(callback){
+var getUserChoice = function(callback){
 	console.log("\n\n");
 	process.stdout.write("\n"+pad(50,"Bamazon Manager Dashboard\n").bold.red);
 	process.stdout.write("\n"+pad(26,"Choose option (1 - 4) <ENTER> to Exit").bold.red);
@@ -49,15 +49,15 @@ var startApp = function(callback){
 			if (isNaN(userChoice) || userChoice < 1 || userChoice>4){
 				console.log('\033c')//clear console
 				// process.stdout.write("** Choose 1 - 4 or hit <ENTER> for Exit **".bold.red);
-				startApp(function(userChoice){
+				getUserChoice(function(userChoice){
 						executeUserChoice(userChoice);
-					});//closes call to startApp
+					});//closes call to getUserChoice
 			}else{
 				return callback(userChoice);
 			}
 	})//closes prompt
 
-}//closes startApp
+}//closes getUserChoice
 
 var viewProducts = function(callback){
 	con.query("SELECT * FROM Product", function(err,rows){
@@ -94,7 +94,7 @@ var viewProducts = function(callback){
 };
 
 function viewLowInventory(callback){
-con.query("SELECT * FROM Product", function(err,rows){
+	con.query("SELECT * FROM Product", function(err,rows){
 
 		if (err) {
 		           throw error;
@@ -105,8 +105,8 @@ con.query("SELECT * FROM Product", function(err,rows){
 		           err.message = "No products found";            
 		           return;
 		       }
-			process.stdout.write("\n\n"+pad(30,"Low Inventory (less than 5)").bold.red);
-			process.stdout.write(("\n"+pad(30,"---------------------------")).bold.red);
+			process.stdout.write("\n\n"+pad(40,"Low Inventory (less than 5)").bold.red);
+			process.stdout.write(("\n"+pad(40,"---------------------------")).bold.red);
 			process.stdout.write(("\nItemID "+pad("Name",22)).bold.green);
 	 		process.stdout.write((pad("Price",8)+pad("# Available",10)).bold.green);
 			process.stdout.write(("\n================================================").bold.red); 
@@ -130,21 +130,24 @@ con.query("SELECT * FROM Product", function(err,rows){
 };
 
 function addToInventory(){
-	viewProducts(function(){
+		viewProducts(function(){
 		console.log("\nAdd additional Inventory to an Item".bold.red);
 		prompt.start();
 		prompt.get(['ItemId','qty'],function(err,result){
-		
 			if (err){throw err};
+				
 				if(result.ItemId && parseInt(result.ItemId)>0){
 					userItemId = result.ItemId;
 					userQty = parseInt(result.qty);
 					if (!userQty){
 						console.log("\n\nQuantity 0 added.\n\n".bold.red);
 						
-						}	
+					
+					}	
 
 				}
+		
+
 		})
 	})
 	
@@ -162,33 +165,33 @@ function executeUserChoice(switchToChoice){
 			case 1 :
 				console.log('\033c')//clear console
 				viewProducts(function(){
-					startApp(function(userChoice){
+					getUserChoice(function(userChoice){
 						executeUserChoice(userChoice);
-					});//closes call to startApp	
+					});//closes call to getUserChoice	
 				})//closes call to viewProducts
 				break;
 			case 2 :
 				console.log('\033c')//clear console
 				viewLowInventory(function(){
-					startApp(function(userChoice){
+					getUserChoice(function(userChoice){
 						executeUserChoice(userChoice);
-					});//closes call to startApp	
+					});//closes call to getUserChoice	
 				})//closes call to viewProducts
 				break;
 			case 3 :
 				console.log('\033c')//clear console
 				addToInventory(function(){
-					startApp(function(userChoice){
+					getUserChoice(function(userChoice){
 						executeUserChoice(userChoice);
-					});//closes call to startApp	
+					});//closes call to getUserChoice	
 				})//closes call to viewProducts
 				break;
 			case 4:
 				console.log('\033c')//clear console
 				addNewProduct(function(){
-					startApp(function(userChoice){
+					getUserChoice(function(userChoice){
 						executeUserChoice(userChoice);
-					});//closes call to startApp	
+					});//closes call to getUserChoice	
 				})//closes call to viewProducts
 				break;
 			default :
@@ -209,11 +212,11 @@ function executeUserChoice(switchToChoice){
 //begin application
 console.log('\033c')//clear console
 
-startApp(function(userChoice){
+getUserChoice(function(userChoice){
 
 	executeUserChoice(userChoice);
 
-});//closes anonymous callback inside call to startApp
+});//closes anonymous callback inside call to getUserChoice
 
 
 
