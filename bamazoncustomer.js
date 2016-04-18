@@ -26,8 +26,10 @@ var userInput = function(){
 		
 	prompt.get(['ItemId','qty'],function(err,result){
 			if (err){throw err};
-			if(result.ItemId){
+			if(result.ItemId && parseInt(result.ItemId)>0){
 				userItemId = result.ItemId;
+				// 
+				// console.log(userItemId);
 				userQty = parseInt(result.qty);
 				if (!userQty){
 					console.log("\n\nQuantity 0 ordered. Thanks for visiting Bamazon!\n\n".bold.red);
@@ -71,7 +73,6 @@ var userInput = function(){
 									process.stdout.write(pad(30,"Total".bold.red));
 									process.stdout.write(("\n==========================================================").bold.green); 
 								
-									//con.query("UPDATE Product SET StockQuantity="+totalLeftInStock+"WHERE ItemID="+itemId);
 									con.query(
 									  'UPDATE Product SET StockQuantity = ? Where ItemId = ?',
 									  [totalLeftInStock, itemId],
@@ -89,21 +90,16 @@ var userInput = function(){
 
 										 	process.exit();
 
-
-
-
-
 									  }
 									);
 
-								}else{process.exit();}
-				
-
-
-
+								}else{
+									process.exit();
+								}
 
 				})//closes query for WHERE ItemID=
 			}else if(!result.item){
+				console.log("\nPlease enter a valid ItemID\n".bold.red);
 				process.exit()
 			}
 
