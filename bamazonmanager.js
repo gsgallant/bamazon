@@ -130,7 +130,24 @@ con.query("SELECT * FROM Product", function(err,rows){
 };
 
 function addToInventory(){
+	viewProducts(function(){
+		console.log("\nAdd additional Inventory to an Item".bold.red);
+		prompt.start();
+		prompt.get(['ItemId','qty'],function(err,result){
+		
+			if (err){throw err};
+				if(result.ItemId && parseInt(result.ItemId)>0){
+					userItemId = result.ItemId;
+					userQty = parseInt(result.qty);
+					if (!userQty){
+						console.log("\n\nQuantity 0 added.\n\n".bold.red);
+						
+						}	
 
+				}
+		})
+	})
+	
 };
 
 function addNewProduct(){
@@ -159,10 +176,20 @@ function executeUserChoice(switchToChoice){
 				})//closes call to viewProducts
 				break;
 			case 3 :
-
+				console.log('\033c')//clear console
+				addToInventory(function(){
+					startApp(function(userChoice){
+						executeUserChoice(userChoice);
+					});//closes call to startApp	
+				})//closes call to viewProducts
 				break;
 			case 4:
-
+				console.log('\033c')//clear console
+				addNewProduct(function(){
+					startApp(function(userChoice){
+						executeUserChoice(userChoice);
+					});//closes call to startApp	
+				})//closes call to viewProducts
 				break;
 			default :
 				console.log("ERROR");exitToTerminal();
