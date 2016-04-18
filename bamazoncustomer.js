@@ -2,7 +2,6 @@ var mysql = require('mysql');
 var prompt = require('prompt');
 var colors = require('colors');
 var pad = require('pad');
-var userItemId,userQty;
 
 var con = mysql.createConnection({
      host     : 'localhost', //for now, this will always be localhost
@@ -20,7 +19,8 @@ con.connect(function (err) {
    });
 
 var userInput = function(){
-	
+	var userItemId,userQty;
+
 	console.log("\n\nPlease place your order? <No Entry => No Order>");
 	prompt.start();
 		
@@ -28,8 +28,6 @@ var userInput = function(){
 			if (err){throw err};
 			if(result.ItemId && parseInt(result.ItemId)>0){
 				userItemId = result.ItemId;
-				// 
-				// console.log(userItemId);
 				userQty = parseInt(result.qty);
 				if (!userQty){
 					console.log("\n\nQuantity 0 ordered. Thanks for visiting Bamazon!\n\n".bold.red);
@@ -78,8 +76,6 @@ var userInput = function(){
 									  [totalLeftInStock, itemId],
 									  function (err, result) {
 									    if (err) throw err;
-
-									    // console.log('Changed ' + result.changedRows + ' rows');
 										    process.stdout.write("\n"+pad(pad(3,itemId),6));
 										 	process.stdout.write(" "+pad(prodName,20));
 										 	process.stdout.write(" "+pad(6,unitPrice.toFixed(2)));
@@ -106,13 +102,6 @@ var userInput = function(){
 	})//closes prompt
 
 }//closes var userInput
-
-
-
-
-// var checkStockAgainstOrder = function(){
-// console.log('checkStockAgainstOrder');
-// }
 
 var displayProducts = function(callback){
 	con.query("SELECT * FROM Product", function(err,rows){
