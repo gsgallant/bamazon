@@ -26,13 +26,14 @@ var userInput = function(callback){
 		
 	prompt.get(['ItemId','qty'],function(err,result){
 			if (err){return callback(err);};
-			if(result.ItemId && parseInt(result.ItemId)>0){
-				userItemId = result.ItemId;
-				userQty = parseInt(result.qty);
-				if (!userQty){
+			userItemId = parseInt(result.ItemId);
+			userQty = parseInt(result.qty);
+
+			if (userItemId<1 || !userItemId || !result.qty || userQty<1){
 					console.log("\n\nQuantity 0 ordered. Thanks for visiting Bamazon!\n\n".bold.red);
-					process.exit();}	
-			
+					process.exit();
+				}	
+				
 				con.query("SELECT * FROM Product WHERE ItemID="+ userItemId, function(err,rows){
 
 						if (err) {
@@ -46,8 +47,6 @@ var userInput = function(callback){
 										})
 									});     
 						       }else{
-							       	console.log("Line 50")
-							       
 							       
 							       var itemId = rows[0].ItemID;
 							       var prodName = rows[0].ProdName;
@@ -95,18 +94,13 @@ var userInput = function(callback){
 									);
 
 								}else{
-									callback();
+									displayProducts(function(){
+										userInput(function(){
+										})
+									});     
 								}
 
 				})//closes query for WHERE ItemID=
-			}else if(!result.item){
-				console.log("\nPlease enter a valid ItemID\n".bold.red);
-				displayProducts(function(){
-					userInput(function(){
-					})
-});
-			}
-
 	})//closes prompt
 
 }//closes var userInput
