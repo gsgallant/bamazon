@@ -51,9 +51,6 @@ var userInput = function(){
 						       var inStockQty = parseInt(rows[0].StockQuantity);
 						       var totalLeftInStock = inStockQty - userQty;
 					      	   var totalCost = (userQty * unitPrice).toFixed(2); 
-						       // console.log("Unit price: "+unitPrice.toFixed(2));
-						       // console.log("Qty in Stock: "+inStockQty);
-						       // console.log("Total Left in stock: "+totalLeftInStock);
 						       var processOrder = false;
 						       if ((inStockQty>0) && (inStockQty < userQty)){
 						       		console.log("\nInsufficient Quantity - We only have ".bold.red + inStockQty.toString().bold.black + " of the item left in stock\n\n".bold.red);
