@@ -18,14 +18,14 @@ con.connect(function (err) {
        //console.log('connected')
    });
 
-var userInput = function(){
+var userInput = function(callback){
 	var userItemId,userQty;
 
 	console.log("\n\nPlease place your order? <No Entry => No Order>");
 	prompt.start();
 		
 	prompt.get(['ItemId','qty'],function(err,result){
-			if (err){throw err};
+			if (err){return callback(err);};
 			if(result.ItemId && parseInt(result.ItemId)>0){
 				userItemId = result.ItemId;
 				userQty = parseInt(result.qty);
@@ -36,32 +36,34 @@ var userInput = function(){
 				con.query("SELECT * FROM Product WHERE ItemID="+ userItemId, function(err,rows){
 
 						if (err) {
-						           throw err;
+						           return callback(err);
 						       }
 						       
 						       if (!rows[0]) {
-						           
 						           console.log("\n\nNo products found with that ID\n\n".bold.red);
-						           process.exit();            
-						           
-						       }
-						       var itemId = rows[0].ItemID;
-						       var prodName = rows[0].ProdName;
-						       var unitPrice = rows[0].Price;
-						       var inStockQty = parseInt(rows[0].StockQuantity);
-						       var totalLeftInStock = inStockQty - userQty;
-					      	   var totalCost = (userQty * unitPrice).toFixed(2); 
-						       // console.log("Unit price: "+unitPrice.toFixed(2));
-						       // console.log("Qty in Stock: "+inStockQty);
-						       // console.log("Total Left in stock: "+totalLeftInStock);
-						       var processOrder = false;
-						       if ((inStockQty>0) && (inStockQty < userQty)){
-						       		console.log("\nInsufficient Quantity - We only have ".bold.red + inStockQty.toString().bold.black + " of the item left in stock\n\n".bold.red);
-						       			}else if(inStockQty < 1){
-						       				console.log("\nThis item is Out Of Stock\n\n".bold.red);
-			   								}else{
-			   									processOrder = true;
-			   								}
+						           displayProducts(function(){
+										userInput(function(){
+										})
+									});     
+						       }else{
+							       	console.log("Line 50")
+							       
+							       
+							       var itemId = rows[0].ItemID;
+							       var prodName = rows[0].ProdName;
+							       var unitPrice = rows[0].Price;
+							       var inStockQty = parseInt(rows[0].StockQuantity);
+							       var totalLeftInStock = inStockQty - userQty;
+						      	   var totalCost = (userQty * unitPrice).toFixed(2); 
+							       var processOrder = false;
+							       if ((inStockQty>0) && (inStockQty < userQty)){
+							       		console.log("\nInsufficient Quantity - We only have ".bold.red + inStockQty.toString().bold.black + " of the item left in stock\n\n".bold.red);
+							       			}else if(inStockQty < 1){
+							       				console.log("\nThis item is Out Of Stock\n\n".bold.red);
+				   								}else{
+				   									processOrder = true;
+				   								}
+								}
 								if (processOrder){
 									
 									process.stdout.write("\n\n"+pad(30,"Order Placed").bold.magenta);
@@ -72,7 +74,7 @@ var userInput = function(){
 									process.stdout.write(("\n==========================================================").bold.green); 
 								
 									con.query(
-									  'UPDATE Product SET StockQuantity = ? Where ItemId = ?',
+									  'UPDATE Product SET StockQuantity = ? Where ItemID = ?',
 									  [totalLeftInStock, itemId],
 									  function (err, result) {
 									    if (err) throw err;
@@ -84,19 +86,25 @@ var userInput = function(){
 
 										 	console.log("\n\n");
 
-										 	process.exit();
+										 	displayProducts(function(){
+													userInput(function(){
+													})
+												});
 
 									  }
 									);
 
 								}else{
-									process.exit();
+									callback();
 								}
 
 				})//closes query for WHERE ItemID=
 			}else if(!result.item){
 				console.log("\nPlease enter a valid ItemID\n".bold.red);
-				process.exit()
+				displayProducts(function(){
+					userInput(function(){
+					})
+});
 			}
 
 	})//closes prompt
@@ -126,8 +134,6 @@ var displayProducts = function(callback){
 			 	var prodName = rows[i].ProdName;
 		 		var price = rows[i].Price;
 		 		var qty = rows[i].StockQuantity;
-			 	// console.log(price);
-			 	// console.log(qty);
 			 	process.stdout.write("\n"+pad(pad(3,itemId),6));
 			 	process.stdout.write(" "+pad(prodName,20));
 			 	process.stdout.write(" "+pad(6,price.toFixed(2)));
@@ -139,4 +145,11 @@ var displayProducts = function(callback){
 	})
 };
 
-displayProducts(userInput);
+displayProducts(function(){
+	userInput(function(){
+	})
+});
+
+
+
+
