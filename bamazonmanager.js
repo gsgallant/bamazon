@@ -28,7 +28,8 @@ function exitToTerminal(){
 
 var getUserChoice = function(callback){
 	console.log("\n\n");
-	process.stdout.write("\n"+pad(50,"Bamazon Manager Dashboard\n").bold.red);
+	process.stdout.write("\n"+pad(20,"Bamazon Manager Dashboard").bold.red);
+	process.stdout.write("\n"+pad(21,"=========================\n").bold.red);
 	process.stdout.write("\n"+pad(26,"Choose option (1 - 4) <ENTER> to Exit").bold.red);
 	process.stdout.write("\n"+pad(5,"1) View Products for Sale").bold.magenta);
 	process.stdout.write("\n"+pad(5,"2) View Low Inventory").bold.magenta);
@@ -47,7 +48,7 @@ var getUserChoice = function(callback){
 			
 			if(!result.Choice){return callback(0);};
 			if (isNaN(userChoice) || userChoice < 1 || userChoice>4){
-				console.log('\033c')//clear console
+				// console.log('\033c')//clear console
 				// process.stdout.write("** Choose 1 - 4 or hit <ENTER> for Exit **".bold.red);
 				getUserChoice(function(userChoice){
 						executeUserChoice(userChoice);
@@ -73,17 +74,20 @@ var viewProducts = function(callback){
 		       }
 			process.stdout.write("\n\n"+pad(30,"Current Inventory").bold.red);
 			process.stdout.write(("\n"+pad(30,"-----------------")).bold.red);
-			process.stdout.write(("\nItemID "+pad("Name",22)).bold.green);
-	 		process.stdout.write((pad("Price",8)+pad("# Available",10)).bold.green);
-			process.stdout.write(("\n================================================").bold.red); 
+			process.stdout.write(("\nItemID "+pad("Name",21)).bold.green);
+	 		process.stdout.write(pad("Dept".bold.green,7));
+	 		process.stdout.write((pad(13,"Price")+pad(15,"# Available")).bold.green);
+			process.stdout.write(("\n============================================================").bold.red); 
 			for(i=0;i<rows.length;++i){
 			 	
 			 	var itemId = rows[i].ItemID;
 			 	var prodName = rows[i].ProdName;
 		 		var price = rows[i].Price;
 		 		var qty = rows[i].StockQuantity;
+			 	var dept = rows[i].DeptName;
 			 	process.stdout.write("\n"+pad(pad(3,itemId),6));
 			 	process.stdout.write(" "+pad(prodName,20));
+			 	process.stdout.write(" "+pad(dept,10));
 			 	process.stdout.write(" "+pad(6,price.toFixed(2)));
 			 	process.stdout.write(" "+pad(10,qty.toString()));
 			 }      
@@ -94,6 +98,7 @@ var viewProducts = function(callback){
 };
 
 function viewLowInventory(callback){
+	var foundLowInv = false;
 	con.query("SELECT * FROM Product", function(err,rows){
 
 		if (err) {
@@ -109,7 +114,7 @@ function viewLowInventory(callback){
 			process.stdout.write(("\n"+pad(40,"---------------------------")).bold.red);
 			process.stdout.write(("\nItemID "+pad("Name",22)).bold.green);
 	 		process.stdout.write((pad("Price",8)+pad("# Available",10)).bold.green);
-			process.stdout.write(("\n================================================").bold.red); 
+			process.stdout.write(("\n================================================\n").bold.red); 
 			for(i=0;i<rows.length;++i){
 			 	
 			 	var itemId = rows[i].ItemID;
@@ -117,44 +122,123 @@ function viewLowInventory(callback){
 		 		var price = rows[i].Price;
 		 		var qty = rows[i].StockQuantity;
 			 	if (qty<5){
-				 	process.stdout.write("\n"+pad(pad(3,itemId),6));
+			 		foundLowInv = true;
+				 	process.stdout.write(pad(pad(3,itemId),6));
 				 	process.stdout.write(" "+pad(prodName,20));
 				 	process.stdout.write(" "+pad(6,price.toFixed(2)));
 				 	process.stdout.write(" "+pad(10,qty.toString()));
+			 		console.log();
 			 	}
 			 }      
+			 if(!foundLowInv){
+			 	process.stdout.write(("No Low Inventory Items Found").bold.magenta);
+			 }
 			 console.log();
 			 callback();
 
 	})
 };
 
-function addToInventory(){
+function addToInventory(callback){
+		
 		viewProducts(function(){
-		console.log("\nAdd additional Inventory to an Item".bold.red);
-		prompt.start();
-		prompt.get(['ItemId','qty'],function(err,result){
-			if (err){throw err};
+			console.log("\nAdd additional Qty To An Item".bold.red);
+			prompt.start();
+			prompt.get(['ItemId','qty'],function(err,result){
+				if (err){return callback(err)};
 				
-				if(result.ItemId && parseInt(result.ItemId)>0){
+				if(!result.ItemId || parseInt(result.ItemId)<1){
+					console.log("\n\nNo products found with that ID\n\n".bold.red);
+					return callback();
+				}
 					userItemId = result.ItemId;
 					userQty = parseInt(result.qty);
+					
 					if (!userQty){
 						console.log("\n\nQuantity 0 added.\n\n".bold.red);
-						
-					
+						return callback();
 					}	
 
-				}
-		
+				
+				con.query("SELECT * FROM Product WHERE ItemID="+ userItemId, function(err,rows){
+								if (err) {
+								           return callback(err);
+								       }
+								       if (!rows[0]) {
+								           console.log("\n\nNo products found with that ID\n\n".bold.red);
+								           return callback();
+							           }     
+		       		 			
+		       		 			var itemId = rows[0].ItemID;
+						       var prodName = rows[0].ProdName;
+						       var unitPrice = rows[0].Price;
+						       var inStockQty = parseInt(rows[0].StockQuantity);
+						       var totalLeftInStock = inStockQty + userQty;
+					      	   // var totalCost = (userQty * unitPrice).toFixed(2); 
+						      process.stdout.write("\n\n"+pad(35,"Qty Added To Inventory").bold.magenta);
+									process.stdout.write(("\n"+pad(35,"----------------------")).bold.magenta);
+									process.stdout.write(("\nItemID "+pad("Name",22)).bold.red);
+							 		process.stdout.write((pad("Price",8)+pad("# Added",10)).bold.red);
+									process.stdout.write(pad(30,"# Available".bold.red));
+									process.stdout.write(("\n==========================================================").bold.green); 
 
+						      con.query(
+									  'UPDATE Product SET StockQuantity = ? Where ItemId = ?',
+									  [totalLeftInStock, itemId],
+									  function (err, result) {
+									    if (err) throw err;
+										    process.stdout.write("\n"+pad(pad(3,itemId),6));
+										 	process.stdout.write(" "+pad(prodName,20));
+										 	process.stdout.write(" "+pad(6,unitPrice.toFixed(2)));
+										 	process.stdout.write(" "+pad(10,userQty.toString()));
+										 	process.stdout.write(" "+pad(10,totalLeftInStock.toString()));
+										 	
+
+										 	console.log("\n\n");
+
+										 	callback();
+
+									  }
+									);
+		       
+		       })
+	       })
 		})
-	})
-	
-};
+}
 
-function addNewProduct(){
-
+function addNewProduct(callback){
+viewProducts(function(){
+			console.log("\nAdd New Item to Inventory".bold.red);
+			prompt.start();
+			prompt.get(['Name','Dept','Price','qty'],function(err,result){
+				if (err){return callback(err)};
+				
+				
+					if (!result.qty || !result.Name){
+						console.log("\n\nNo Item Added\n\n".bold.red);
+						return callback();
+					}	
+								if(result.Price){
+								var price = parseFloat(result.Price);
+								}else{price = 0.00};
+								if(result.qty){
+									var qty = parseInt(result.qty);
+								}else{qty = 0};
+								
+								var addProduct = {ProdName : result.Name, DeptName : result.Dept, Price : price, StockQuantity : qty }
+				
+				con.query('INSERT INTO Product SET ?', addProduct, function(err,res){
+								if (err) {
+								           console.log(err);
+								           return callback(err);
+								       }
+								           console.log("\n\nItemID added: " + res.insertId);
+								           viewProducts(callback);
+							          
+		       
+		       })
+	       })
+		})
 };
 
 function executeUserChoice(switchToChoice){
