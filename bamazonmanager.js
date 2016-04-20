@@ -50,9 +50,9 @@ var getUserChoice = function(callback){
 			if (isNaN(userChoice) || userChoice < 1 || userChoice>4){
 				console.log('\033c')//clear console
 				process.stdout.write("** Choose 1 - 4 or hit <ENTER> for Exit **".bold.red);
-				getUserChoice(function(userChoice){
+				return(getUserChoice(function(userChoice){
 						executeUserChoice(userChoice);
-					});//closes call to getUserChoice
+					}));//closes call to getUserChoice
 			}else{
 				return callback(userChoice);
 			}
@@ -92,7 +92,7 @@ var viewProducts = function(callback){
 			 	process.stdout.write(" "+pad(10,qty.toString()));
 			 }      
 			 console.log();
-			 callback();
+			 return(callback());
 
 	})
 };
@@ -137,7 +137,7 @@ function viewLowInventory(callback){
 			 	process.stdout.write(("No Low Inventory Items Found").bold.magenta);
 			 }
 			 console.log();
-			 callback();
+			 return(callback());
 
 	})
 };
@@ -178,8 +178,8 @@ function addToInventory(callback){
 						       var inStockQty = parseInt(rows[0].StockQuantity);
 						       var totalLeftInStock = inStockQty + userQty;
 					      	   // var totalCost = (userQty * unitPrice).toFixed(2); 
-						      process.stdout.write("\n\n"+pad(35,"Qty Added To Inventory").bold.magenta);
-									process.stdout.write(("\n"+pad(35,"----------------------")).bold.magenta);
+						      		process.stdout.write("\n\n"+pad(35,"Qty Added To Inventory Item").bold.magenta);
+									process.stdout.write(("\n"+pad(35,"---------------------------")).bold.magenta);
 									process.stdout.write(("\nItemID "+pad("Name",22)).bold.red);
 							 		process.stdout.write((pad("Price",8)+pad("# Added",10)).bold.red);
 									process.stdout.write(pad(30,"# Available".bold.red));
@@ -199,7 +199,7 @@ function addToInventory(callback){
 
 										 	console.log("\n\n");
 
-										 	callback();
+										 	return(callback());
 
 									  }
 									);
@@ -235,8 +235,24 @@ viewProducts(function(){
 								           console.log(err);
 								           return callback(err);
 								       }
-								           console.log("\n\nItemID added: " + res.insertId);
-								           viewProducts(callback);
+								           
+							            process.stdout.write("\n\n"+pad(35,"New Item Added To Inventory").bold.magenta);
+										process.stdout.write(("\n"+pad(35,"---------------------------")).bold.magenta);
+										process.stdout.write(("\nItemID "+pad("Name",21)).bold.green);
+								 		process.stdout.write(pad("Dept".bold.green,7));
+								 		process.stdout.write((pad(13,"Price")+pad(15,"# Available")).bold.green);
+										process.stdout.write(("\n============================================================").bold.red);
+
+										process.stdout.write("\n"+pad(pad(3,res.insertId),6));
+									 	process.stdout.write(" "+pad(result.Name,20));
+									 	process.stdout.write(" "+pad(result.Dept,10));
+									 	process.stdout.write(" "+pad(6,price.toFixed(2)));
+									 	process.stdout.write(" "+pad(10,qty.toString()));
+										 	
+
+										 	console.log("\n\n");
+								           return(callback());
+								          // viewProducts(callback);
 							          
 		       
 		       })
@@ -299,11 +315,11 @@ function executeUserChoice(switchToChoice){
 //begin application
 console.log('\033c')//clear console
 
-getUserChoice(function(userChoice){
+return(getUserChoice(function(userChoice){
 
 	executeUserChoice(userChoice);
 
-});//closes anonymous callback inside call to getUserChoice
+}));//closes anonymous callback inside call to getUserChoice
 
 
 

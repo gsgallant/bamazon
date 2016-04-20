@@ -30,7 +30,7 @@ var userInput = function(callback){
 			userQty = parseInt(result.qty);
 
 			if (userItemId<1 || !userItemId || !result.qty || userQty<1){
-					console.log("\n\nQuantity 0 ordered. Thanks for visiting Bamazon!\n\n".bold.red);
+					console.log("\nThanks for visiting Bamazon!\n".bold.red);
 					process.exit();
 				}	
 				
@@ -41,11 +41,12 @@ var userInput = function(callback){
 						       }
 						       
 						       if (!rows[0]) {
-						           console.log("\n\nNo products found with that ID\n\n".bold.red);
-						           displayProducts(function(){
+						           console.log('\033c')//clear console
+						           console.log("No Item id: ".bold.red + result.ItemId);
+						           return(displayProducts(function(){
 										userInput(function(){
 										})
-									});     
+									}));     
 						       }else{
 							       
 							       var itemId = rows[0].ItemID;
@@ -56,16 +57,18 @@ var userInput = function(callback){
 						      	   var totalCost = (userQty * unitPrice).toFixed(2); 
 							       var processOrder = false;
 							       if ((inStockQty>0) && (inStockQty < userQty)){
-							       		console.log("\nInsufficient Quantity - We only have ".bold.red + inStockQty.toString().bold.black + " of the item left in stock\n\n".bold.red);
+							       		console.log('\033c')//clear console
+							       		console.log("Insufficient Quantity - We only have ".bold.red + inStockQty.toString().bold.black + " of Item: "+ itemId + " - " + prodName);
 							       			}else if(inStockQty < 1){
-							       				console.log("\nThis item is Out Of Stock\n\n".bold.red);
+							       				console.log('\033c')//clear console
+							       				console.log("Item: ".bold.red+itemId + " - " + prodName+ " is Out Of Stock".bold.red);
 				   								}else{
 				   									processOrder = true;
 				   								}
 								}
 								if (processOrder){
-									
-									process.stdout.write("\n\n"+pad(30,"Order Placed").bold.magenta);
+									console.log('\033c')//clear console
+									process.stdout.write(pad(30,"Order Placed").bold.magenta);
 									process.stdout.write(("\n"+pad(30,"------------")).bold.magenta);
 									process.stdout.write(("\nItemID "+pad("Name",22)).bold.red);
 							 		process.stdout.write((pad("Price",8)+pad("# Ordered",10)).bold.red);
@@ -85,19 +88,20 @@ var userInput = function(callback){
 
 										 	console.log("\n\n");
 
-										 	displayProducts(function(){
+										 	return(displayProducts(function(){
 													userInput(function(){
 													})
-												});
+												}));
 
 									  }
 									);
 
 								}else{
-									displayProducts(function(){
-										userInput(function(){
-										})
-									});     
+									return(displayProducts(function(){
+													userInput(function(){
+													})
+												}));
+ 
 								}
 
 				})//closes query for WHERE ItemID=
@@ -117,7 +121,7 @@ var displayProducts = function(callback){
 		           err.message = "No products found";            
 		           return callback(err);
 		       }
-			process.stdout.write("\n\n"+pad(30,"Current Inventory").bold.red);
+			process.stdout.write("\n"+pad(30,"Current Inventory").bold.red);
 			process.stdout.write(("\n"+pad(30,"-----------------")).bold.red);
 			process.stdout.write(("\nItemID "+pad("Name",22)).bold.green);
 	 		process.stdout.write((pad("Price",8)+pad("# Available",10)).bold.green);
@@ -138,11 +142,11 @@ var displayProducts = function(callback){
 
 	})
 };
-
-displayProducts(function(){
+console.log('\033c')//clear console
+return(displayProducts(function(){
 	userInput(function(){
 	})
-});
+}));
 
 
 
