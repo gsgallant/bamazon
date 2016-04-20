@@ -112,22 +112,25 @@ function viewLowInventory(callback){
 		       }
 			process.stdout.write("\n\n"+pad(40,"Low Inventory (less than 5)").bold.red);
 			process.stdout.write(("\n"+pad(40,"---------------------------")).bold.red);
-			process.stdout.write(("\nItemID "+pad("Name",22)).bold.green);
-	 		process.stdout.write((pad("Price",8)+pad("# Available",10)).bold.green);
-			process.stdout.write(("\n================================================\n").bold.red); 
+			process.stdout.write(("\nItemID "+pad("Name",20)).bold.green);
+	 		process.stdout.write(pad("Dept".bold.green,9));
+	 		process.stdout.write((pad(13,"Price")+pad(15,"# Available")).bold.green);
+			process.stdout.write(("\n============================================================\n").bold.red);
 			for(i=0;i<rows.length;++i){
 			 	
 			 	var itemId = rows[i].ItemID;
 			 	var prodName = rows[i].ProdName;
 		 		var price = rows[i].Price;
 		 		var qty = rows[i].StockQuantity;
+			 	var dept = rows[i].DeptName;
 			 	if (qty<5){
-			 		foundLowInv = true;
-				 	process.stdout.write(pad(pad(3,itemId),6));
-				 	process.stdout.write(" "+pad(prodName,20));
-				 	process.stdout.write(" "+pad(6,price.toFixed(2)));
-				 	process.stdout.write(" "+pad(10,qty.toString()));
-			 		console.log();
+		 		foundLowInv = true;
+			 	process.stdout.write(pad(pad(3,itemId),6));
+			 	process.stdout.write(" "+pad(prodName,20));
+			 	process.stdout.write(pad(dept,11));
+			 	process.stdout.write(pad(6,price.toFixed(2)));
+			 	process.stdout.write(pad(10,qty.toString()));
+		 		console.log();
 			 	}
 			 }      
 			 if(!foundLowInv){
