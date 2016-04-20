@@ -22,12 +22,12 @@ con.connect(function (err) {
 
 function exitToTerminal(){
 	console.log("\n");
-	process.stdout.write(pad(70,"**Goodbye & Thank you for using Bamazon Manager Dashboard**\n\n\n").bold.red);
+	process.stdout.write(pad(70,"**Thank you for using Bamazon Manager Dashboard**\n\n\n").bold.red);
 	process.exit();
 };
 
 var getUserChoice = function(callback){
-	console.log("\n\n");
+	console.log("");
 	process.stdout.write("\n"+pad(20,"Bamazon Manager Dashboard").bold.red);
 	process.stdout.write("\n"+pad(21,"=========================\n").bold.red);
 	process.stdout.write("\n"+pad(26,"Choose option (1 - 4) <ENTER> to Exit").bold.red);
@@ -48,8 +48,8 @@ var getUserChoice = function(callback){
 			
 			if(!result.Choice){return callback(0);};
 			if (isNaN(userChoice) || userChoice < 1 || userChoice>4){
-				// console.log('\033c')//clear console
-				// process.stdout.write("** Choose 1 - 4 or hit <ENTER> for Exit **".bold.red);
+				console.log('\033c')//clear console
+				process.stdout.write("** Choose 1 - 4 or hit <ENTER> for Exit **".bold.red);
 				getUserChoice(function(userChoice){
 						executeUserChoice(userChoice);
 					});//closes call to getUserChoice
