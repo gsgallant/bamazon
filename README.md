@@ -15,7 +15,7 @@ This app used NodeJS and MySQL and was strictly for the terminal.  Even so, I wa
 
 Links to the two videos demonstrating this nodejs app in the terminal:
 
-https://drive.google.com/open?id=0B2V1MNWjUm9qbXRGTDVyMERobWc
+https://drive.google.com/open?id=0B2V1MNWjUm9qbXRGTDVyMERobWc<br>
 https://drive.google.com/open?id=0B2V1MNWjUm9qckZoUkxFRGJBSGs
 
 
